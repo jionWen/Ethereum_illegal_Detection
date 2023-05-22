@@ -35,7 +35,7 @@ def XGBoost_Classifier (X_train, y_train, X_test, y_test):
     accuracy = accuracy_score(y_test, predictions)
     print("Accuracy: %.2f%%" % (accuracy * 100.0))
     plot_xgb_feature_importance(model, 2, 'weight', width=200, height=200)
-    # retrieve performance metrics
+
     results = model.evals_result()
     epochs = len(results['validation_0']['error'])
     x_axis = range(0, epochs)
@@ -49,7 +49,7 @@ def XGBoost_Classifier (X_train, y_train, X_test, y_test):
     pyplot.xlabel('Number of iterations')
     pyplot.title('XGBoost Log Loss')
     pyplot.show()
-    # plot classification error
+    #分类错误的图
     fig, ax = pyplot.subplots()
     ax.plot(x_axis, results['validation_0']['error'], label='Train')
     ax.plot(x_axis, results['validation_1']['error'], label='Test')
@@ -71,10 +71,10 @@ def XGBoost(X_train, y_train, X_test, y_test):
     train_model2 = model2.fit(X_train, y_train)
     pred2 = train_model2.predict(X_test)
     #print(classification_report(y_test, pred1))
-    #print("Accuracy for model 1: %.2f" % (accuracy_score(y_test, pred1) * 100))
+
 
     print(classification_report(y_test, pred2))
-    print("Accuracy for model 2: %.2f" % (accuracy_score(y_test, pred2) * 100))
+    print("模型2的精确度: %.2f" % (accuracy_score(y_test, pred2) * 100))
     auc = roc_auc_score(y_test, model2.predict_proba(X_test)[:, 1])
     precision, recall, threshold = precision_recall_curve(y_test, model2.predict_proba(X_test)[:, 1])
     #print(threshold)
@@ -98,10 +98,9 @@ def XGBoost(X_train, y_train, X_test, y_test):
 
     #plot_FP_FN(FP=FP, FN=FN)
 
-    # Weight - number of times feature is used to split the data across all trees
-    # Cover - number of times feature is used to split data across all trees weighted by number of
-    #         training data points that go through those splits
-    # Gain - average training loss reduction gained when using a feature for splitting
+    # Weight
+    # Cover
+    # Gain
 
     importance = model2.get_booster().get_score(importance_type='weight')
     importance = sorted(importance.items(), key= lambda l:l[1], reverse=True)
@@ -161,20 +160,17 @@ def plot_confusion_matrix(y_true, y_pred, classes,
                           normalize=False,
                           title=None,
                           cmap=plt.cm.Blues):
-    """
-    This function prints and plots the confusion matrix.
-    Normalization can be applied by setting `normalize=True`.
-    """
+
     if not title:
         if normalize:
             title = 'Normalized confusion matrix'
         else:
             title = 'Confusion matrix, without normalization'
 
-    # Compute confusion matrix
+    #计算混淆矩阵
     cm = confusion_matrix(y_true, y_pred)
     tn, fp, fn, tp = cm.ravel()
-    # Only use the labels that appear in the data
+
     classes = classes[unique_labels(y_true, y_pred)]
     if normalize:
         cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
@@ -188,20 +184,20 @@ def plot_confusion_matrix(y_true, y_pred, classes,
     fig, ax = plt.subplots()
     im = ax.imshow(cm, interpolation='nearest', cmap=cmap)
     ax.figure.colorbar(im, ax=ax)
-    # We want to show all ticks...
+
     ax.set(xticks=np.arange(cm.shape[1]),
            yticks=np.arange(cm.shape[0]),
-           # ... and label them with the respective list entries
+
            xticklabels=classes, yticklabels=classes,
            title=title,
            ylabel='True label',
            xlabel='Predicted label')
 
-    # Rotate the tick labels and set their alignment.
+
     plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
              rotation_mode="anchor")
 
-    # Loop over data dimensions and create text annotations.
+
     fmt = '.2f' if normalize else 'd'
     thresh = cm.max() / 2.
     for i in range(cm.shape[0]):
@@ -239,7 +235,7 @@ def stratified_k_fold_XGBoost(X, Y, n_folds):
     results = GridSearchCV(model1,param_grid, cv=kfold, scoring='roc_auc', n_jobs=6)
     grid_result = results.fit(X, Y)
 
-    # summarize results
+    # result
     print("Best: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
     means = grid_result.cv_results_['mean_test_score']
     stds = grid_result.cv_results_['std_test_score']
@@ -259,8 +255,7 @@ def stratified_k_fold_XGBoost(X, Y, n_folds):
     pyplot.savefig('n_estimators_vs_max_depth.png')
     # print("Test AUC: %.3f STD(%.3f)"% (np.mean(results['test_auc']), np.std(results['test_auc'])),
     #       " Test Accuracy: %.3f STD(%.3f) " % (np.mean(results['test_acc']), np.std(results['test_acc'])))
-    # print("--------------------------------------------------------------------------------------------\n")
-    # print("Model execution time over %s folds: %s seconds" % (n_folds, time.time()-current))
+
 
 
 
@@ -334,16 +329,13 @@ def plot_xgb_feature_importance(model, model_number, importance_type, width, hei
     plt.savefig(" "+importance_type)
     plt.show()
 
-# Returns the total frequency per feature over the number of folds
+
 def update_list(importance_value_list):
     c = Counter()
     for k,v in importance_value_list:
         c[k] += v
 
-    # PLOT TOP 10
-    # feature_list = list(c.items())[:10]
 
-    # PLOT ALL
     feature_list = list(c.items())
 
     sorted_feature_list = sorted(feature_list.__iter__(), key=lambda x : x[1], reverse=False)
@@ -367,16 +359,13 @@ def plot_average_importance_values(sorted_feature_list, num_of_train_test):
 if __name__ == '__main__':
     X, Y = get_dataset('../Account_Stats/Complete.csv')
 
-    #k_means(X,Y)
-    #X_diff, Y_diff = get_dataset('C:/Users/luter/Documents/Github/Ethereum_Fraud_Detection/Account_Stats/new_illicit_addresses.csv')
-    #X_diff, Y_diff = get_dataset('C:/Users/luter/Documents/Github/Ethereum_Fraud_Detection/Account_Stats/Complete_Illicit_Subset_1000.csv')
-    # stratified_k_fold_XGBoost(X, Y, n_folds=10)
+
 
     importance_list = []
     num_of_train_test_splits = 10
     for i in range(num_of_train_test_splits):
         X_train, X_test, y_train, y_test = prepare_dataset_split(X, Y, testSize=0.1)
-        #XGBoost(X_train, y_train, X_diff, Y_diff) # TO TEST NEWLY ADDED ADDRESSES
+        #XGBoost(X_train, y_train, X_diff, Y_diff)
         #XGBoost(X_train, y_train, X_test, y_test)
         importance = XGBoost(X_train, y_train, X_test, y_test)
         importance_list.extend(importance)
@@ -384,6 +373,5 @@ if __name__ == '__main__':
     sorted_feature_list = update_list(importance_list)
     #plot_average_importance_values(sorted_feature_list, num_of_train_test_splits)
 
-    #   random_forest(X_train,  y_train, X_test, y_test)
 
 

@@ -1,6 +1,4 @@
-# Created on 19.02.2019 By Steven Farrugia
-# Scope: Retrieve and analyze fraudulent activity on the Ethereum network
-# Method of retrieval: EtherscamDB API; https://etherscamdb.info/api, MyEtherWallet; https://raw.githubusercontent.com/MyEtherWallet/ethereum-lists/master/src/addresses/addresses-darklist.json
+
 import datetime
 import json
 import requests
